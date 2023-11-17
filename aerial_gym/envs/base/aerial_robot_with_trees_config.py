@@ -14,17 +14,17 @@ TREE_SEMANTIC_ID = 2
 OBJECT_SEMANTIC_ID = 3
 WALL_SEMANTIC_ID = 8
 
-class AerialRobotWithObstaclesCfg(BaseConfig):
+class AerialRobotWithTreesCfg(BaseConfig):
     seed = 1
     class env:
-        num_envs = 64
+        num_envs = 1
         num_observations = 13
         get_privileged_obs = True # if True the states of all entitites in the environment will be returned as privileged observations, otherwise None will be returned
         num_actions = 4
         env_spacing = 5.0  # not used with heightfields/trimeshes
         episode_length_s = 10 # episode length in seconds
         num_control_steps_per_env_step = 10 # number of control & physics steps between camera renders
-        enable_onboard_cameras = False # enable onboard cameras
+        enable_onboard_cameras = True # enable onboard cameras
         reset_on_collision = True # reset environment when contact force on quadrotor is above a threshold
         create_ground_plane = True # create a ground plane
 
@@ -108,7 +108,7 @@ class AerialRobotWithObstaclesCfg(BaseConfig):
 
 
     class thin_asset_params(asset_state_params):
-        num_assets = 5
+        num_assets = 1
 
         collision_mask = 1 # objects with the same collision mask will not collide
 
@@ -117,8 +117,8 @@ class AerialRobotWithObstaclesCfg(BaseConfig):
 
         specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
 
-        min_euler_angles = [-np.pi/4, -np.pi/4, -np.pi/4] # min euler angles
-        max_euler_angles = [np.pi/4, np.pi/4, np.pi/4] # max euler angles
+        min_euler_angles = [0, 0, 0]
+        max_euler_angles = [0, 0, 0]
         # min_euler_angles = [-np.pi, -np.pi, -np.pi] # min euler angles
         # max_euler_angles = [np.pi, np.pi, np.pi] # max euler angles
 
@@ -134,19 +134,22 @@ class AerialRobotWithObstaclesCfg(BaseConfig):
       
 
     class tree_asset_params(asset_state_params):
-        num_assets = 2
+        num_assets = 10
 
         collision_mask = 1 # objects with the same collision mask will not collide
 
         max_position_ratio = [0.95, 0.95, 0.1] # min position as a ratio of the bounds
         min_position_ratio = [0.05, 0.05, 0.0] # max position as a ratio of the bounds
 
-        specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
+        specified_position = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing   the ratios
+
+        # specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
 
         min_euler_angles = [0, -np.pi/6.0, -np.pi] # min euler angles
         max_euler_angles = [0, np.pi/6.0, np.pi] # max euler angles
-
-        specified_euler_angle = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing
+        
+        specified_euler_angle = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing
+        # specified_euler_angle = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing
 
         collapse_fixed_joints = True
         links_per_asset = 1
@@ -309,8 +312,8 @@ class AerialRobotWithObstaclesCfg(BaseConfig):
         folder_path = f"{AERIAL_GYM_ROOT_DIR}/resources/models/environment_assets"
         
         include_asset_type = {
-            "thin": True,
-            "trees": False,
+            "thin": False,
+            "trees": True,
             "objects": False
             }
             
