@@ -78,6 +78,10 @@ env_configurations.register('quad', {'env_creator': lambda **kwargs : task_regis
 env_configurations.register('quad_with_obstacles', {'env_creator': lambda **kwargs : task_registry.make_env('quad_with_obstacles',args=Namespace(**kwargs)),
         'vecenv_type': 'AERIAL-RLGPU'})
 
+#registering the Quad with Trees task
+# env_configurations.register('quad_with_trees', {'env_creator': lambda **kwargs : task_registry.make_env('quad_with_trees',args=Namespace(**kwargs)),
+#         'vecenv_type': 'AERIAL-RLGPU'})
+
 vecenv.register('AERIAL-RLGPU',
                 lambda config_name, num_actors, **kwargs: AERIALRLGPUEnv(config_name, num_actors, **kwargs))
 

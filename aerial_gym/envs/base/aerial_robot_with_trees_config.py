@@ -134,16 +134,16 @@ class AerialRobotWithTreesCfg(BaseConfig):
       
 
     class tree_asset_params(asset_state_params):
-        num_assets = 10
+        num_assets = 3 #10
 
         collision_mask = 1 # objects with the same collision mask will not collide
 
         max_position_ratio = [0.95, 0.95, 0.1] # min position as a ratio of the bounds
         min_position_ratio = [0.05, 0.05, 0.0] # max position as a ratio of the bounds
 
-        specified_position = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing   the ratios
+        # specified_position = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing   the ratios
 
-        # specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
+        specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
 
         min_euler_angles = [0, -np.pi/6.0, -np.pi] # min euler angles
         max_euler_angles = [0, np.pi/6.0, np.pi] # max euler angles

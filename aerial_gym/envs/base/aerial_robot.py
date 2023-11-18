@@ -258,6 +258,8 @@ def quat_axis(q, axis=0):
 def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, reset_buf, progress_buf, max_episode_length):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
+    print(root_positions[..., 0], root_positions[..., 1], root_positions[..., 2])
+    
     # distance to target
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
                              root_positions[..., 1] * root_positions[..., 1] +

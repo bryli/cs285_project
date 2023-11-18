@@ -192,6 +192,7 @@ class AerialRobotWithTrees(BaseTask):
                 self.camera_handles.append(cam_handle)
                 camera_tensor = self.gym.get_camera_image_gpu_tensor(self.sim, env_handle, cam_handle, gymapi.IMAGE_DEPTH)
                 torch_cam_tensor = gymtorch.wrap_tensor(camera_tensor)
+                print(torch_cam_tensor)
                 self.camera_tensors.append(torch_cam_tensor)
 
             env_asset_list = self.env_asset_manager.prepare_assets_for_simulation(self.gym, self.sim)
@@ -296,7 +297,7 @@ class AerialRobotWithTrees(BaseTask):
 
         self.time_out_buf = self.progress_buf > self.max_episode_length
         self.extras["time_outs"] = self.time_out_buf
-        return (self.obs_buf, self.camera_buf), self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras
+        return self.obs_buf, self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
@@ -391,6 +392,8 @@ class AerialRobotWithTrees(BaseTask):
         self.obs_buf[..., 3:7] = self.root_quats
         self.obs_buf[..., 7:10] = self.root_linvels
         self.obs_buf[..., 10:13] = self.root_angvels
+        #adding camera data to observation buffer --TODO: reduce dimensionality of camera tensors using AutoEncoder
+        # self.obs_buf[..., 14:] = self.full_camera_array
         return self.obs_buf
 
     def compute_reward(self):
@@ -399,6 +402,7 @@ class AerialRobotWithTrees(BaseTask):
             self.root_quats,
             self.root_linvels,
             self.root_angvels,
+            self.full_camera_array,
             self.collisions,
             self.reset_buf, self.progress_buf, self.max_episode_length
         )
@@ -427,9 +431,8 @@ def quat_axis(q, axis=0):
     return quat_rotate(q, basis_vec)
 
 @torch.jit.script
-def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, collisions, reset_buf, progress_buf, max_episode_length):
-# def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, camera_buf, reset_buf, progress_buf, max_episode_length):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
+def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, full_camera_array, collisions, reset_buf, progress_buf, max_episode_length):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
     ## The reward function set here is arbitrary and the user is encouraged to modify this as per their need to achieve collision avoidance.
 
@@ -449,8 +452,22 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # spinnage_reward = 1.0 / (1.0 + spinnage * spinnage)
 
     # combined reward
-    # uprigness and spinning only matter when close to the target
+    # uprightness and spinning only matter when close to the target
+    # reward = pos_reward + pos_reward * (up_reward + spinnage_reward) - 1000 * collisions
+    
     reward = pos_reward + pos_reward * up_reward - 1000 * collisions
+
+    #replacing weird inf values with 0
+    full_camera_array[torch.isinf(full_camera_array)] = 0
+
+    max_pixel_values, _ = torch.max(full_camera_array, dim=1)
+    max_pixel_values, _ = torch.max(max_pixel_values, dim=1) #gets the maximum pixel value for each environment's camera image
+    
+    # avg_pixel_values = torch.mean(full_camera_array, dim=(1, 2)) #gets avg pixel value 
+    reward -= max_pixel_values / 60
+    #print(reward)
+    
+
     # reward = pos_reward + pos_reward * up_reward - np.max(camera_buf)
     # reward = pos_reward + pos_reward * (up_reward + spinnage_reward)
 

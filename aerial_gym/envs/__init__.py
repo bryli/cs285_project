@@ -15,6 +15,6 @@ import os
 
 from aerial_gym.utils.task_registry import task_registry
 
-task_registry.register( "quad", AerialRobot, AerialRobotCfg())
+task_registry.register("quad", AerialRobot, AerialRobotCfg())
 task_registry.register("quad_with_obstacles", AerialRobotWithObstacles, AerialRobotWithObstaclesCfg())
 task_registry.register("quad_with_trees", AerialRobotWithTrees, AerialRobotWithTreesCfg())
