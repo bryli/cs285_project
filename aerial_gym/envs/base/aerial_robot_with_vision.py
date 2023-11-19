@@ -27,7 +27,7 @@ from aerial_gym.utils.helpers import asset_class_to_AssetOptions
 import time
 
 
-class AerialRobotWithTrees(BaseTask):
+class AerialRobotWithVision(BaseTask):
 
     def __init__(self, cfg: AerialRobotWithTreesCfg, sim_params, physics_engine, sim_device, headless):
         self.cfg = cfg
@@ -192,6 +192,7 @@ class AerialRobotWithTrees(BaseTask):
                 self.camera_handles.append(cam_handle)
                 camera_tensor = self.gym.get_camera_image_gpu_tensor(self.sim, env_handle, cam_handle, gymapi.IMAGE_DEPTH)
                 torch_cam_tensor = gymtorch.wrap_tensor(camera_tensor)
+                print(torch_cam_tensor)
                 self.camera_tensors.append(torch_cam_tensor)
 
             env_asset_list = self.env_asset_manager.prepare_assets_for_simulation(self.gym, self.sim)
@@ -296,7 +297,7 @@ class AerialRobotWithTrees(BaseTask):
 
         self.time_out_buf = self.progress_buf > self.max_episode_length
         self.extras["time_outs"] = self.time_out_buf
-        return (self.obs_buf, self.camera_buf), self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras
+        return self.obs_buf, self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
@@ -385,13 +386,15 @@ class AerialRobotWithTrees(BaseTask):
         for env_id in range(self.num_envs):
             # the depth values are in -ve z axis, so we need to flip it to positive
             self.full_camera_array[env_id] = -self.camera_tensors[env_id]
+        self.full_camera_array[torch.isinf(self.full_camera_array)] = 0
 
     def compute_observations(self):
         self.obs_buf[..., :3] = self.root_positions
         self.obs_buf[..., 3:7] = self.root_quats
         self.obs_buf[..., 7:10] = self.root_linvels
         self.obs_buf[..., 10:13] = self.root_angvels
-        self.obs_buf[..., 14] = np.flatten(self.full_camera_array)
+        #adding camera data to observation buffer --TODO: reduce dimensionality of camera tensors using AutoEncoder
+        self.obs_buf[..., 13:] = torch.flatten(self.full_camera_array, start_dim=1)
         return self.obs_buf
 
     def compute_reward(self):
@@ -429,16 +432,22 @@ def quat_axis(q, axis=0):
 
 @torch.jit.script
 def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, collisions, reset_buf, progress_buf, max_episode_length):
-# def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, camera_buf, reset_buf, progress_buf, max_episode_length):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
     ## The reward function set here is arbitrary and the user is encouraged to modify this as per their need to achieve collision avoidance.
 
     # distance to target
+    # target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
+    #                          root_positions[..., 1] * root_positions[..., 1] +
+    #                          (root_positions[..., 2]) * (root_positions[..., 2]))
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
-                             root_positions[..., 1] * root_positions[..., 1] +
-                             (root_positions[..., 2]) * (root_positions[..., 2]))
+                             root_positions[..., 1] * root_positions[..., 1])
     pos_reward = 2.0 / (1.0 + target_dist * target_dist)
+    goal_reward = 1 / (0.001 + target_dist * target_dist) + 1000 * target_dist < 0.2
+    # print(target_dist)
+    # if collisions > 0:
+    #     print(root_positions[0][0], root_positions[0][1], root_positions[0][2])
+    #     print("COLLISION OCCURRED", collisions)
 
     # uprightness
     ups = quat_axis(root_quats, 2)
@@ -449,9 +458,17 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # spinnage = torch.abs(root_angvels[..., 2])
     # spinnage_reward = 1.0 / (1.0 + spinnage * spinnage)
 
+    # height
+    z = root_positions[..., 2]
+    height_penalty = torch.where(z > 4, z - 4, torch.zeros_like(z))
+
     # combined reward
-    # uprigness and spinning only matter when close to the target
-    reward = pos_reward + pos_reward * up_reward - 1000 * collisions
+    # uprightness and spinning only matter when close to the target
+    # reward = pos_reward + pos_reward * (up_reward + spinnage_reward) - 1000 * collisions
+    
+    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * z) + goal_reward - progress_buf
+    
+
     # reward = pos_reward + pos_reward * up_reward - np.max(camera_buf)
     # reward = pos_reward + pos_reward * (up_reward + spinnage_reward)
 
@@ -464,6 +481,11 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # resets due to episode length
     reset = torch.where(progress_buf >= max_episode_length - 1, ones, die)
     reset = torch.where(torch.norm(root_positions, dim=1) > 20, ones, reset)
+    reset = torch.where(target_dist < 0.2, ones, reset)
     reset = torch.where(collisions > 0, ones, reset)
+    if torch.any(reset):
+        for i in range(len(reset)):
+            if reset[i]:
+                print("X=" + str(root_positions[i][0].item()) + ",Y=" + str(root_positions[i][1].item()) + ",Z=" +  str(root_positions[i][2].item()) + ",Rew=" + str(reward[i].item()) + ",Col=" + str(collisions[i].item()) + ",Prog="  +str(progress_buf[i].item()))
 
     return reward, reset
