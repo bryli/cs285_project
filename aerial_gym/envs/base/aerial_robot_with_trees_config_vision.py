@@ -16,11 +16,9 @@ WALL_SEMANTIC_ID = 8
 
 class AerialRobotWithTreesCfg(BaseConfig):
     seed = 1
-    randomize_assets = False
-    designated_assets = 'cuboidal_rod.urdf'
     class env:
         num_envs = 1
-        num_observations = 13
+        num_observations = 14
         get_privileged_obs = True # if True the states of all entitites in the environment will be returned as privileged observations, otherwise None will be returned
         num_actions = 4
         env_spacing = 5.0  # not used with heightfields/trimeshes
@@ -136,16 +134,16 @@ class AerialRobotWithTreesCfg(BaseConfig):
       
 
     class tree_asset_params(asset_state_params):
-        num_assets = 3 #10
+        num_assets = 10
 
         collision_mask = 1 # objects with the same collision mask will not collide
 
-        max_position_ratio = [0.95, 0.95, 0.0] # min position as a ratio of the bounds
+        max_position_ratio = [0.95, 0.95, 0.1] # min position as a ratio of the bounds
         min_position_ratio = [0.05, 0.05, 0.0] # max position as a ratio of the bounds
 
-        # specified_position = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing   the ratios
+        specified_position = [0.0, 0.0, 0.0] # if > -900, use this value instead of randomizing   the ratios
 
-        specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
+        # specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing   the ratios
 
         min_euler_angles = [0, -np.pi/6.0, -np.pi] # min euler angles
         max_euler_angles = [0, np.pi/6.0, np.pi] # max euler angles
@@ -165,20 +163,20 @@ class AerialRobotWithTreesCfg(BaseConfig):
         num_assets = 50
         
         max_position_ratio = [0.95, 0.95, 0.95] # min position as a ratio of the bounds
-        min_position_ratio = [0.05, 0.05, 0.00] # max position as a ratio of the bounds
+        min_position_ratio = [0.05, 0.05, 0.05] # max position as a ratio of the bounds
 
         specified_position = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing the ratios
 
         min_euler_angles = [0, -np.pi/6, -np.pi] # min euler angles
         max_euler_angles = [0, np.pi/6, np.pi] # max euler angles
 
-        specified_euler_angle = [0, 0, 0] # if > -900, use this value instead of randomizing
+        specified_euler_angle = [-1000.0, -1000.0, -1000.0] # if > -900, use this value instead of randomizing
 
         links_per_asset = 1
         set_whole_body_semantic_mask = False
         set_semantic_mask_per_link = False
         semantic_id = OBJECT_SEMANTIC_ID
-        specific_filepath = "cube.urdf"
+
         # color = [80,255,100]
 
     class left_wall(asset_state_params):
@@ -315,8 +313,8 @@ class AerialRobotWithTreesCfg(BaseConfig):
         
         include_asset_type = {
             "thin": False,
-            "trees": False,
-            "objects": True
+            "trees": True,
+            "objects": False
             }
             
         include_env_bound_type = {

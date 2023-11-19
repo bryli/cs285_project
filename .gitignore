@@ -5,5 +5,6 @@ runs/
 *.tfevents*
 *.egg-info/
 resources/
+.idea/
 
 */__pycache__/

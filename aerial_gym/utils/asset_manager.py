@@ -67,7 +67,13 @@ class AssetManager:
         
         self.load_asset_tensors()
         self.randomize_pose()
-
+        # Yikuan
+        self.randomize_assets = self.cfg.randomize_assets
+        if not self.randomize_assets:
+            self.designated_assets = self.cfg.designated_assets
+        else:
+            self.designated_assets = None
+        # if not randomize assets, return only the designated assets in randomly_select_asset_files function
 
     def _add_asset_2_tensor(self,asset_class):
 
@@ -206,10 +212,13 @@ class AssetManager:
         return asset_list
 
     def randomly_select_asset_files(self, folder_path, num_files):
-        file_name_list = [f for f in os.listdir(
-            folder_path) if os.path.isfile(os.path.join(folder_path, f))]
-        urdf_files = [f for f in file_name_list if f.endswith('.urdf')]
-        selected_files = random.choices(urdf_files, k=num_files)
+        if not self.randomize_assets and self.designated_assets is not None:
+            selected_files = [self.designated_assets for _ in range(num_files)]
+        else:
+            file_name_list = [f for f in os.listdir(
+                folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+            urdf_files = [f for f in file_name_list if f.endswith('.urdf')]
+            selected_files = random.choices(urdf_files, k=num_files)
         return selected_files
     
     def randomize_pose(self, num_obstacles = None, reset_envs = None):
