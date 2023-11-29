@@ -12,7 +12,8 @@ from isaacgym.torch_utils import quat_from_euler_xyz
 
 import torch
 import pytorch3d.transforms as p3d_transforms
-            
+
+import pathfinding
 
 def asset_class_to_AssetOptions(asset_class):
     asset_options = gymapi.AssetOptions()
@@ -67,6 +68,8 @@ class AssetManager:
         
         self.load_asset_tensors()
         self.randomize_pose()
+
+        pathfinding.rrt_star_path_length()
         # Yikuan
         self.randomize_assets = self.cfg.randomize_assets
         if not self.randomize_assets:
@@ -221,7 +224,7 @@ class AssetManager:
             selected_files = random.choices(urdf_files, k=num_files)
         return selected_files
     
-    def randomize_pose(self, num_obstacles = None, reset_envs = None):
+    def randomize_pose(self, num_obstacles = None, reset_envs = None, difficulty_factor = 0.1):
         if self.asset_pose_tensor is None:
             return
 
@@ -231,7 +234,17 @@ class AssetManager:
 
         self.env_bound_diff = (self.env_upper_bound - self.env_lower_bound)
 
-        pos_ratio_euler_asbolute = self.asset_min_state_tensor + torch.rand_like(self.asset_min_state_tensor)*(self.asset_max_state_tensor - self.asset_min_state_tensor)
+        if difficulty_factor is None:
+            pos_ratio_euler_asbolute = self.asset_min_state_tensor + torch.rand_like(self.asset_min_state_tensor)*(self.asset_max_state_tensor - self.asset_min_state_tensor)
+        else:
+            pos_ratio_euler_asbolute = self.asset_min_state_tensor + torch.rand_like(self.asset_min_state_tensor)*(self.asset_max_state_tensor - self.asset_min_state_tensor)
+            if difficulty_factor < 1:
+                for i in range(len(pos_ratio_euler_asbolute)):
+                    num_obs = len(pos_ratio_euler_asbolute[i])
+                    start = min(int(num_obs * difficulty_factor), num_obs - 1)
+                    pos_ratio_euler_asbolute[i, start:, :3] = pos_ratio_euler_asbolute[i, 0, :3].repeat(num_obs - start, 1)
+            
+        
         self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]
         
         self.asset_pose_tensor[:, :, 3:6] = pos_ratio_euler_asbolute[:, :, 3:6]
