@@ -13,7 +13,7 @@ from isaacgym.torch_utils import quat_from_euler_xyz
 import torch
 import pytorch3d.transforms as p3d_transforms
 
-import pathfinding
+from aerial_gym.utils.pathfinding import rrt_star_path_length
 
 def asset_class_to_AssetOptions(asset_class):
     asset_options = gymapi.AssetOptions()
@@ -69,7 +69,6 @@ class AssetManager:
         self.load_asset_tensors()
         self.randomize_pose()
 
-        pathfinding.rrt_star_path_length()
         # Yikuan
         self.randomize_assets = self.cfg.randomize_assets
         if not self.randomize_assets:
@@ -236,13 +235,35 @@ class AssetManager:
 
         if difficulty_factor is None:
             pos_ratio_euler_asbolute = self.asset_min_state_tensor + torch.rand_like(self.asset_min_state_tensor)*(self.asset_max_state_tensor - self.asset_min_state_tensor)
+            self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]
         else:
             pos_ratio_euler_asbolute = self.asset_min_state_tensor + torch.rand_like(self.asset_min_state_tensor)*(self.asset_max_state_tensor - self.asset_min_state_tensor)
+            num_env = len(pos_ratio_euler_asbolute)
             if difficulty_factor < 1:
-                for i in range(len(pos_ratio_euler_asbolute)):
+                for i in range(num_env):
                     num_obs = len(pos_ratio_euler_asbolute[i])
                     start = min(int(num_obs * difficulty_factor), num_obs - 1)
                     pos_ratio_euler_asbolute[i, start:, :3] = pos_ratio_euler_asbolute[i, 0, :3].repeat(num_obs - start, 1)
+
+            self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]
+            
+            euclidean_dist = 7.07
+            # goal = (0, 0)
+            # start = (5, 5)
+            env_diff = [False] * num_env
+            epsilon = 0.1
+
+            while not all(env_diff):
+                for i in range(num_env):
+                    if not env_diff[i]:
+                        for _ in range(10):
+                            obstacle_pos = self.env_lower_bound[i, :2].unsqueeze(0) + self.env_bound_diff[i, :2].unsqueeze(0) * pos_ratio_euler_asbolute[i,:,:2]
+                            total_dist = rrt_star_path_length(obstacle_pos)
+                            if abs(total_dist - euclidean_dist * (1 + difficulty_factor))/euclidean_dist * (1 + difficulty_factor) < epsilon:
+                                env_diff[i] = True
+                                self.asset_pose_tensor[i, :, :2] = obstacle_pos
+                                break
+                epsilon += 0.05
             
         
         self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]
