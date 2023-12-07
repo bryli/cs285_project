@@ -192,7 +192,6 @@ class AerialRobotWithVision(BaseTask):
                 self.camera_handles.append(cam_handle)
                 camera_tensor = self.gym.get_camera_image_gpu_tensor(self.sim, env_handle, cam_handle, gymapi.IMAGE_DEPTH)
                 torch_cam_tensor = gymtorch.wrap_tensor(camera_tensor)
-                print(torch_cam_tensor)
                 self.camera_tensors.append(torch_cam_tensor)
 
             env_asset_list = self.env_asset_manager.prepare_assets_for_simulation(self.gym, self.sim)
@@ -386,7 +385,9 @@ class AerialRobotWithVision(BaseTask):
         for env_id in range(self.num_envs):
             # the depth values are in -ve z axis, so we need to flip it to positive
             self.full_camera_array[env_id] = -self.camera_tensors[env_id]
-        self.full_camera_array[torch.isinf(self.full_camera_array)] = 0
+        # self.full_camera_array[torch.isinf(self.full_camera_array)] = 0
+        #ZED2i: min range 1, max range 65
+        self.full_camera_array = torch.clamp(self.full_camera_array, max=65.0)
         # use torch.clip and set to some max value, relating to real depth camera
 
     def compute_observations(self):
@@ -396,7 +397,27 @@ class AerialRobotWithVision(BaseTask):
         self.obs_buf[..., 10:13] = self.root_angvels
         #adding camera data to observation buffer --TODO: reduce dimensionality of camera tensors using AutoEncoder
         self.obs_buf[..., 13:] = torch.flatten(self.full_camera_array, start_dim=1)
+        self.min_dist = self.compute_distance()
         return self.obs_buf
+    
+    def compute_min_distance(self):
+        obstacles = self.env_asset_manager.asset_pose_tensor[:, :, 0:3]
+        env_dists = []
+        for i in range(self.num_envs):
+            min_dist = torch.tensor(float('inf'))
+            for obs in obstacles[i]:
+                rx, ry, rz = self.root_positions[i]
+                x, y, z = obs
+                if rz < z:
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - z) ** 2) - 0.225)
+                elif rz > z + 4:
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - (z + 4)) ** 2) - 0.225)
+                else:     
+                # if rz >= z and rz <= z + 4:
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2) - 0.225)
+
+            env_dists.append(min_dist)
+        return torch.Tensor(env_dists)
 
     def compute_reward(self):
         self.rew_buf[:], self.reset_buf[:] = compute_quadcopter_reward(
@@ -404,6 +425,7 @@ class AerialRobotWithVision(BaseTask):
             self.root_quats,
             self.root_linvels,
             self.root_angvels,
+            self.min_dist,
             self.collisions,
             self.reset_buf, self.progress_buf, self.max_episode_length
         )
@@ -432,9 +454,10 @@ def quat_axis(q, axis=0):
     return quat_rotate(q, basis_vec)
 
 @torch.jit.script
-def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, collisions, reset_buf, progress_buf, max_episode_length):
-    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
+def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, min_dist, collisions, reset_buf, progress_buf, max_episode_length):
+    # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
+    # TODO: Use min_dist to augment reward function
     ## The reward function set here is arbitrary and the user is encouraged to modify this as per their need to achieve collision avoidance.
 
     # distance to target
