@@ -247,23 +247,23 @@ class AssetManager:
 
             self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]
             
-            euclidean_dist = 7.07
-            # goal = (0, 0)
-            # start = (5, 5)
-            env_diff = [False] * num_env
-            epsilon = 0.1
+            # euclidean_dist = 7.07
+            # # goal = (0, 0)
+            # # start = (5, 5)
+            # env_diff = [False] * num_env
+            # epsilon = 0.1
 
-            while not all(env_diff):
-                for i in range(num_env):
-                    if not env_diff[i]:
-                        for _ in range(10):
-                            obstacle_pos = self.env_lower_bound[i, :2].unsqueeze(0) + self.env_bound_diff[i, :2].unsqueeze(0) * pos_ratio_euler_asbolute[i,:,:2]
-                            total_dist = rrt_star_path_length(obstacle_pos)
-                            if abs(total_dist - euclidean_dist * (1 + difficulty_factor))/euclidean_dist * (1 + difficulty_factor) < epsilon:
-                                env_diff[i] = True
-                                self.asset_pose_tensor[i, :, :2] = obstacle_pos
-                                break
-                epsilon += 0.05
+            # while not all(env_diff):
+            #     for i in range(num_env):
+            #         if not env_diff[i]:
+            #             for _ in range(10):
+            #                 obstacle_pos = self.env_lower_bound[i, :2].unsqueeze(0) + self.env_bound_diff[i, :2].unsqueeze(0) * pos_ratio_euler_asbolute[i,:,:2]
+            #                 total_dist = rrt_star_path_length(obstacle_pos)
+            #                 if abs(total_dist - euclidean_dist * (1 + difficulty_factor))/euclidean_dist * (1 + difficulty_factor) < epsilon:
+            #                     env_diff[i] = True
+            #                     self.asset_pose_tensor[i, :, :2] = obstacle_pos
+            #                     break
+            #     epsilon += 0.05
             
         
         self.asset_pose_tensor[:, :, :3] = self.env_lower_bound.unsqueeze(1) + self.env_bound_diff.unsqueeze(1) * pos_ratio_euler_asbolute[:,:,:3]

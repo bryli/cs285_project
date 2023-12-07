@@ -387,6 +387,7 @@ class AerialRobotWithVision(BaseTask):
             # the depth values are in -ve z axis, so we need to flip it to positive
             self.full_camera_array[env_id] = -self.camera_tensors[env_id]
         self.full_camera_array[torch.isinf(self.full_camera_array)] = 0
+        # use torch.clip and set to some max value, relating to real depth camera
 
     def compute_observations(self):
         self.obs_buf[..., :3] = self.root_positions
@@ -466,6 +467,13 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # uprightness and spinning only matter when close to the target
     # reward = pos_reward + pos_reward * (up_reward + spinnage_reward) - 1000 * collisions
     
+    # first model was collision based, was bad in s2r transfer
+    # can take in depth map
+    # array of object locations and then use it as reward
+    # (0, 1), drone is at (4, 5) -> euclidean distance
+    # D *    *   * * 
+    #  *  * *
+
     reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * z) + goal_reward - progress_buf
     
 
