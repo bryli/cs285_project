@@ -223,7 +223,7 @@ class AssetManager:
             selected_files = random.choices(urdf_files, k=num_files)
         return selected_files
     
-    def randomize_pose(self, num_obstacles = None, reset_envs = None, difficulty_factor = 0.1):
+    def randomize_pose(self, num_obstacles = None, reset_envs = None, difficulty_factor = 1):
         if self.asset_pose_tensor is None:
             return
 

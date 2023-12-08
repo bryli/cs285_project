@@ -464,7 +464,7 @@ def quat_axis(q, axis=0):
     basis_vec[:, axis] = 1
     return quat_rotate(q, basis_vec)
 
-#@torch.jit.script
+@torch.jit.script
 def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_angvels, min_dist, collisions, reset_buf, progress_buf, max_episode_length):
     # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float) -> Tuple[Tensor, Tensor]
 
@@ -477,8 +477,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     #                          (root_positions[..., 2]) * (root_positions[..., 2]))
 
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
-                             root_positions[..., 1] * root_positions[..., 1] + 
-                             (root_positions[..., 2] - 0.5) * (root_positions[..., 2] - 0.5)) #(0,0,0.5) to disincentivize it from going too far up
+                             root_positions[..., 1] * root_positions[..., 1]) #(0,0,x)
     pos_reward = 2.0 / (1.0 + target_dist * target_dist)
     goal_reward = 1 / (0.001 + target_dist * target_dist) + 10000 * target_dist < 0.2
     # print(target_dist)
@@ -497,7 +496,8 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     # height
     z = root_positions[..., 2]
-    height_penalty = torch.where(z > 4, torch.ones_like(z), torch.zeros_like(z))
+    height_penalty = torch.where(z > 10, torch.ones_like(z), torch.zeros_like(z))
+    too_far_penalty = torch.where(torch.norm(root_positions, dim=1) > 20, torch.ones_like(z), torch.zeros_like(z))
 
     # combined reward
     # uprightness and spinning only matter when close to the target
@@ -509,15 +509,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # (0, 1), drone is at (4, 5) -> euclidean distance
     # D *    *   * * 
     #  *  * *
-
-    print(pos_reward.device)
-    print(up_reward.device)
-    print(collisions.device)
-    print(height_penalty.device)
-    print(goal_reward.device)
-    print(progress_buf.device)
-    print(min_dist.device)
-    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 1000 * height_penalty + 10 * z) + goal_reward - progress_buf + min_dist
+    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z) + goal_reward - progress_buf + min_dist
     
     print("****Reward Caluclations****")
     print("pos_reward:      " + str(pos_reward[0]))
@@ -541,9 +533,9 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # resets due to episode length
     reset = torch.where(progress_buf >= max_episode_length - 1, ones, die)
     reset = torch.where(torch.norm(root_positions, dim=1) > 20, ones, reset)
-    reset = torch.where(target_dist < 0.2, ones, reset)
+    #reset = torch.where(target_dist < 0.2, ones, reset)
     reset = torch.where(collisions > 0, ones, reset)
-    reset = torch.where(z > 3, ones, reset)
+    reset = torch.where(z > 10, ones, reset)
     if torch.any(reset):
         for i in range(len(reset)):
             if reset[i]:
