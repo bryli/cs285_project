@@ -222,7 +222,7 @@ if __name__ == "__main__":
     print("using device:", device)
 
     # env setup
-    envs, env_cfg = task_registry.make_env(name="quad_with_trees", args=args)
+    envs, env_cfg = task_registry.make_env(name="quad_with_vision", args=args)
 
     envs = RecordEpisodeStatisticsTorch(envs, device)
 

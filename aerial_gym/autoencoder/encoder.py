@@ -2,8 +2,8 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-# from model.vgg_new import VGG_backbone
-# import my_custom_transforms as mtr
+from .vgg_new import VGG_backbone
+import aerial_gym.autoencoder.my_custom_transforms as mtr
 import torchvision
 import random
 import numpy as np
@@ -156,6 +156,7 @@ class Autoencoder():
                     outputs = torch.cat((outputs, output),0)
         outputs = torch.squeeze(outputs) # (Batch, 7, 7)
         outputs = torch.flatten(outputs, start_dim=1) # (Batch, 49)
+        outputs = outputs.cuda()
         return outputs
 if __name__ == "__main__":
     # Reading dataset locally, nothing to do with online simulation
