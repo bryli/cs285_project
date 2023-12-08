@@ -479,11 +479,13 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
                              root_positions[..., 1] * root_positions[..., 1]) #(0,0,x)
     pos_reward = 2.0 / (1.0 + target_dist * target_dist)
-    goal_reward = 1 / (0.001 + target_dist * target_dist) + 10000 * target_dist < 0.2
+    goal_reward = 100 / (0.1 + target_dist * target_dist) + 10000 * target_dist < 0.2
     # print(target_dist)
     # if collisions > 0:
     #     print(root_positions[0][0], root_positions[0][1], root_positions[0][2])
     #     print("COLLISION OCCURRED", collisions)
+
+    collision_risk = 100 / (0.1 + min_dist)
 
     # uprightness
     ups = quat_axis(root_quats, 2)
@@ -509,9 +511,20 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # (0, 1), drone is at (4, 5) -> euclidean distance
     # D *    *   * * 
     #  *  * *
-    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z) + goal_reward - progress_buf + min_dist
+
+    print(pos_reward.device)
+    print(up_reward.device)
+    print(collisions.device)
+    print(height_penalty.device)
+    print(goal_reward.device)
+    print(progress_buf.device)
+    print(min_dist.device)
+    # aarush initial reward function
+    # reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z) + goal_reward - progress_buf + min_dist
+    # bryan initial reward function
+    reward = pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + collision_risk) + goal_reward - progress_buf
     
-    print("****Reward Caluclations****")
+    print("****Reward Calculations****")
     print("pos_reward:      " + str(pos_reward[0]))
     print("goal_reward:     " + str(goal_reward[0]))
     print("up_reward:       " + str(up_reward[0]))
