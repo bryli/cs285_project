@@ -48,7 +48,7 @@ from aerial_gym.utils import task_registry
 
 def get_args():
     custom_parameters = [
-        {"name": "--task", "type": str, "default": "quad_with_trees", "help": "Resume training or start testing from a checkpoint. Overrides config file if provided."},
+        {"name": "--task", "type": str, "default": "quad_with_vision", "help": "Resume training or start testing from a checkpoint. Overrides config file if provided."},
         {"name": "--experiment_name", "type": str, "default": os.path.basename(__file__).rstrip(".py"), "help": "Name of the experiment to run or load. Overrides config file if provided."},
         {"name": "--checkpoint", "type": str, "default": None, "help": "Saved model checkpoint number."},        
         {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},

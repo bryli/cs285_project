@@ -26,6 +26,8 @@ from aerial_gym.utils.asset_manager import AssetManager
 from aerial_gym.utils.helpers import asset_class_to_AssetOptions
 import time
 
+from aerial_gym.autoencoder.encoder import Autoencoder
+
 
 class AerialRobotWithVision(BaseTask):
 
@@ -44,7 +46,7 @@ class AerialRobotWithVision(BaseTask):
 
 
         self.env_asset_manager = AssetManager(self.cfg, sim_device)
-        self.cam_resolution = (480,270)
+        self.cam_resolution = (192, 108) #(480,270)
 
         super().__init__(self.cfg, sim_params, physics_engine, sim_device, headless)
         self.root_tensor = self.gym.acquire_actor_root_state_tensor(self.sim)
@@ -103,7 +105,10 @@ class AerialRobotWithVision(BaseTask):
 
 
         if self.cfg.env.enable_onboard_cameras:
-            self.full_camera_array = torch.zeros((self.num_envs, 270, 480), device=self.device)
+            self.full_camera_array = torch.zeros((self.num_envs, 108, 192), device=self.device) #used to be 270, 480
+            #initialize autoencoder
+            self.autoencoder = Autoencoder(VGG_checkpoint="./autoencoder/vgg16_feat.pth", encoder_checkpoint="./autoencoder/best_depth.pth")
+
 
         if self.viewer:
             cam_pos_x, cam_pos_y, cam_pos_z = self.cfg.viewer.pos[0], self.cfg.viewer.pos[1], self.cfg.viewer.pos[2]
@@ -282,6 +287,8 @@ class AerialRobotWithVision(BaseTask):
         
         self.progress_buf += 1
 
+        #self.min_dists = self.compute_distance()
+
         self.check_collisions()
         self.compute_observations()
         self.compute_reward()
@@ -379,8 +386,6 @@ class AerialRobotWithVision(BaseTask):
         self.collisions[:] = 0
         self.collisions = torch.where(torch.norm(self.contact_forces, dim=1) > 0.1, ones, zeros)
 
-
-
     def dump_images(self):
         for env_id in range(self.num_envs):
             # the depth values are in -ve z axis, so we need to flip it to positive
@@ -396,7 +401,9 @@ class AerialRobotWithVision(BaseTask):
         self.obs_buf[..., 7:10] = self.root_linvels
         self.obs_buf[..., 10:13] = self.root_angvels
         #adding camera data to observation buffer --TODO: reduce dimensionality of camera tensors using AutoEncoder
-        self.obs_buf[..., 13:] = torch.flatten(self.full_camera_array, start_dim=1)
+        self.latent_camera_features = self.autoencoder(self.full_camera_array)
+
+        self.obs_buf[..., 13:] = torch.flatten(self.latent_camera_features, start_dim=1)
         self.min_dist = self.compute_distance()
         return self.obs_buf
     
@@ -420,6 +427,7 @@ class AerialRobotWithVision(BaseTask):
         return torch.Tensor(env_dists)
 
     def compute_reward(self):
+
         self.rew_buf[:], self.reset_buf[:] = compute_quadcopter_reward(
             self.root_positions,
             self.root_quats,
@@ -467,7 +475,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
                              root_positions[..., 1] * root_positions[..., 1])
     pos_reward = 2.0 / (1.0 + target_dist * target_dist)
-    goal_reward = 1 / (0.001 + target_dist * target_dist) + 1000 * target_dist < 0.2
+    goal_reward = 1 / (0.001 + target_dist * target_dist) + 1000 * int(target_dist < 0.2)
     # print(target_dist)
     # if collisions > 0:
     #     print(root_positions[0][0], root_positions[0][1], root_positions[0][2])
@@ -484,7 +492,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     # height
     z = root_positions[..., 2]
-    height_penalty = torch.where(z > 4, z - 4, torch.zeros_like(z))
+    height_penalty = torch.where(z > 4, torch.ones_like(z), torch.zeros_like(z))
 
     # combined reward
     # uprightness and spinning only matter when close to the target
@@ -497,7 +505,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # D *    *   * * 
     #  *  * *
 
-    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * z) + goal_reward - progress_buf
+    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 1000 * height_penalty + 10 * z) + goal_reward - progress_buf + min_dist
     
 
     # reward = pos_reward + pos_reward * up_reward - np.max(camera_buf)
@@ -514,6 +522,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     reset = torch.where(torch.norm(root_positions, dim=1) > 20, ones, reset)
     reset = torch.where(target_dist < 0.2, ones, reset)
     reset = torch.where(collisions > 0, ones, reset)
+    reset = torch.where(z > 4, ones, reset)
     if torch.any(reset):
         for i in range(len(reset)):
             if reset[i]:

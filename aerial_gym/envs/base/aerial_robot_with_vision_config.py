@@ -20,7 +20,7 @@ class AerialRobotWithVisionCfg(BaseConfig):
     designated_assets = 'cuboidal_rod.urdf'
     class env:
         num_envs = 1
-        num_observations = 129613
+        num_observations = 62 #old: 129613, new: 13 + 49 = 62
         # num_observations = 13
         get_privileged_obs = True # if True the states of all entitites in the environment will be returned as privileged observations, otherwise None will be returned
         num_actions = 4
