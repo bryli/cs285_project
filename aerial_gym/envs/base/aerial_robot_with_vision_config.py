@@ -17,7 +17,7 @@ WALL_SEMANTIC_ID = 8
 class AerialRobotWithVisionCfg(BaseConfig):
     seed = 1
     randomize_assets = False
-    designated_assets = 'cuboidal_rod.urdf'
+    designated_assets = 'cylinder.urdf'
     class env:
         num_envs = 1
         num_observations = 62 #old: 129613, new: 13 + 49 = 62
