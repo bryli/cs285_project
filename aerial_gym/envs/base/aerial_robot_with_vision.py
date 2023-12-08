@@ -512,13 +512,13 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # D *    *   * * 
     #  *  * *
 
-    print(pos_reward.device)
-    print(up_reward.device)
-    print(collisions.device)
-    print(height_penalty.device)
-    print(goal_reward.device)
-    print(progress_buf.device)
-    print(min_dist.device)
+    # print(pos_reward.device)
+    # print(up_reward.device)
+    # print(collisions.device)
+    # print(height_penalty.device)
+    # print(goal_reward.device)
+    # print(progress_buf.device)
+    # print(min_dist.device)
     # aarush initial reward function
     # reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z) + goal_reward - progress_buf + min_dist
     # bryan initial reward function
