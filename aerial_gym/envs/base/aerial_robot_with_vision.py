@@ -479,7 +479,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
                              root_positions[..., 1] * root_positions[..., 1]) #(0,0,x)
     pos_reward = 2.0 / (1.0 + target_dist * target_dist)
-    goal_reward = 1 / (0.001 + target_dist * target_dist) + 10000 * target_dist < 0.2
+    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.2)
     # print(target_dist)
     # if collisions > 0:
     #     print(root_positions[0][0], root_positions[0][1], root_positions[0][2])
@@ -496,6 +496,8 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     # height
     z = root_positions[..., 2]
+    z_clipped = torch.where(z <= 5, torch.zeros_like(z), z - 5)
+
     height_penalty = torch.where(z > 10, torch.ones_like(z), torch.zeros_like(z))
     too_far_penalty = torch.where(torch.norm(root_positions, dim=1) > 20, torch.ones_like(z), torch.zeros_like(z))
 
@@ -509,7 +511,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # (0, 1), drone is at (4, 5) -> euclidean distance
     # D *    *   * * 
     #  *  * *
-    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z) + goal_reward - progress_buf + min_dist
+    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z_clipped) + goal_reward - progress_buf + min_dist
     
     print("****Reward Caluclations****")
     print("pos_reward:      " + str(pos_reward[0]))
