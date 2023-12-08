@@ -410,7 +410,7 @@ class AerialRobotWithVision(BaseTask):
         self.min_dist = self.compute_min_distance()
         return self.obs_buf
     
-    def compute_min_distance(self):
+    def compute_min_distance(self, rod_radius = 0.1, rod_height=3):
         obstacles = self.env_asset_manager.asset_pose_tensor[:, :, 0:3]
         env_dists = []
         for i in range(self.num_envs):
@@ -419,12 +419,12 @@ class AerialRobotWithVision(BaseTask):
                 rx, ry, rz = self.root_positions[i]
                 x, y, z = obs
                 if rz < z:
-                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - z) ** 2) - 0.225)
-                elif rz > z + 4:
-                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - (z + 4)) ** 2) - 0.225)
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - z) ** 2) - rod_radius)
+                elif rz > z + rod_height:
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2 + (rz - (z + rod_height)) ** 2) - rod_radius)
                 else:     
                 # if rz >= z and rz <= z + 4:
-                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2) - 0.225)
+                    min_dist = torch.min(min_dist, torch.sqrt((rx - x) ** 2 + (ry - y) ** 2) - rod_radius)
 
             env_dists.append(min_dist)
         return torch.Tensor(env_dists).cuda()
