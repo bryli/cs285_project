@@ -502,7 +502,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     #pos_reward = 2.0 / (1.0 + target_dist * target_dist) #inverse proportional
 
-    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.2) - 100 * (target_dist < 0.05)
+    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.05) #- 100 * (target_dist < 0.05)
 
     #drone_reward = -torch.where(target_distance <= 0.05, torch.tensor(100, device=self.device), torch.tensor(0, device=self.device))
 
