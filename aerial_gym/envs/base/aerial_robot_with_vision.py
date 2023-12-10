@@ -27,7 +27,7 @@ from aerial_gym.utils.helpers import asset_class_to_AssetOptions
 import time
 
 from aerial_gym.autoencoder.encoder import Autoencoder
-
+from gymnasium import spaces
 
 class AerialRobotWithVision(BaseTask):
 
@@ -118,6 +118,23 @@ class AerialRobotWithVision(BaseTask):
             cam_ref_env = self.cfg.viewer.ref_env
             
             self.gym.viewer_camera_look_at(self.viewer, None, cam_pos, cam_target)
+        
+        self.single_action_space_upper_limit = torch.ones((self.num_actions), dtype=torch.float32, device=self.device)
+        self.single_action_space_lower_limit = -1 * torch.ones((self.num_actions), dtype=torch.float32, device=self.device)
+
+        self.single_action_space = spaces.Box(
+            low=self.single_action_space_lower_limit.cpu().numpy(),
+            high=self.single_action_space_upper_limit.cpu().numpy(),
+            dtype=np.float32
+        )
+        self.observation_upper_limits = float('inf') * torch.ones((self.num_obs), dtype=torch.float32, device=self.device)
+        self.observation_lower_limits = -float('inf') * torch.ones((self.num_obs), dtype=torch.float32, device=self.device)
+
+        self.single_observation_space = spaces.Box(
+            low=self.observation_lower_limits.cpu().numpy(),
+            high=self.observation_upper_limits.cpu().numpy(),
+            dtype=np.float32
+        )
 
     def create_sim(self):
         self.sim = self.gym.create_sim(
@@ -275,6 +292,8 @@ class AerialRobotWithVision(BaseTask):
     def step(self, actions):
         # step physics and render each frame
         for i in range(self.cfg.env.num_control_steps_per_env_step):
+            if type(actions) is np.ndarray:
+                actions = torch.from_numpy(actions)
             self.pre_physics_step(actions)
             self.gym.simulate(self.sim)
             # NOTE: as per the isaacgym docs, self.gym.fetch_results must be called after self.gym.simulate, but not having it here seems to work fine
@@ -354,6 +373,7 @@ class AerialRobotWithVision(BaseTask):
         actions = _actions.to(self.device)
         actions = tensor_clamp(
             actions, self.action_lower_limits, self.action_upper_limits)
+        
         self.action_input[:] = actions
 
         # clear actions for reset envs
@@ -478,8 +498,19 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     target_dist = torch.sqrt(root_positions[..., 0] * root_positions[..., 0] +
                              root_positions[..., 1] * root_positions[..., 1]) #(0,0,x)
-    pos_reward = 2.0 / (1.0 + target_dist * target_dist)
-    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.2)
+
+
+    #pos_reward = 2.0 / (1.0 + target_dist * target_dist) #inverse proportional
+
+    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.2) - 100 * (target_dist < 0.05)
+
+    #drone_reward = -torch.where(target_distance <= 0.05, torch.tensor(100, device=self.device), torch.tensor(0, device=self.device))
+
+    # penalize for extremely small distances -100 reward
+    
+    # prior reward: closer to reward = bigger reward, so it wobbles around the goal to max reward
+    # new reward: sharp maximum around reward, drone stabilize itself around the goal (stop all action at goal position)
+
     # print(target_dist)
     # if collisions > 0:
     #     print(root_positions[0][0], root_positions[0][1], root_positions[0][2])
@@ -514,18 +545,18 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # D *    *   * * 
     #  *  * *
 
-    reward = pos_reward + pos_reward * up_reward - (1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z_clipped) + goal_reward - progress_buf + min_dist
-
+    reward = goal_reward + 50 * up_reward + min_dist #reward close to goal, upright, and big min_dist
+    reward -= 1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z_clipped + progress_buf #penalize collisions, height resets, too-far resets, too high position, and too long episodes
     
-    print("****Reward Calculations****")
-    print("pos_reward:      " + str(pos_reward[0]))
-    print("goal_reward:     " + str(goal_reward[0]))
-    print("up_reward:       " + str(up_reward[0]))
-    print("collision:       " + str(int(collisions[0] * 1000)))
-    print("height:          " + str(int(height_penalty[0] * 1000)))
-    print("prog_buf:        " + str(progress_buf[0]))
-    print("min_dist:        " + str(min_dist[0]))
-    print("total_reward:    " + str(reward))
+    # print("****Reward Calculations****")
+    # print("pos_reward:      " + str(pos_reward[0]))
+    # print("goal_reward:     " + str(goal_reward[0]))
+    # print("up_reward:       " + str(up_reward[0]))
+    # print("collision:       " + str(int(collisions[0] * 1000)))
+    # print("height:          " + str(int(height_penalty[0] * 1000)))
+    # print("prog_buf:        " + str(progress_buf[0]))
+    # print("min_dist:        " + str(min_dist[0]))
+    # print("total_reward:    " + str(reward))
 
     # reward = pos_reward + pos_reward * up_reward - np.max(camera_buf)
     # reward = pos_reward + pos_reward * (up_reward + spinnage_reward)
