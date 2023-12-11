@@ -54,7 +54,7 @@ def get_args():
         {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},
         {"name": "--horovod", "action": "store_true", "default": False, "help": "Use horovod for multi-gpu training"},
         {"name": "--rl_device", "type": str, "default": "cuda:0", "help": 'Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)'},
-        {"name": "--num_envs", "type": int, "default": 8, "help": "Number of environments to create. Overrides config file if provided."},
+        {"name": "--num_envs", "type": int, "default": 256, "help": "Number of environments to create. Overrides config file if provided."},
         {"name": "--seed", "type": int, "default": 1, "help": "Random seed. Overrides config file if provided."},
         {"name": "--play", "required": False, "help": "only run network", "action": 'store_true'},
 
