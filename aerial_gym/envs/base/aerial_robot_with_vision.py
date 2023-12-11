@@ -329,7 +329,8 @@ class AerialRobotWithVision(BaseTask):
         if 0 in env_ids:
             print("\n\n\n RESETTING ENV 0 \n\n\n")
 
-        self.env_asset_manager.randomize_pose()
+        self.env_asset_manager.randomize_pose(difficulty_factor=min(((self.counter // 100000 + 1) / 10.0), 1.0), heuristic=False)
+        # self.env_asset_manager.randomize_pose(difficulty_factor=min(((self.counter // 100000 + 1) / 10.0), 1.0), heuristic=False)
         
         self.env_asset_root_states[env_ids, :, 0:3] = self.env_asset_manager.asset_pose_tensor[env_ids, :, 0:3]
 
