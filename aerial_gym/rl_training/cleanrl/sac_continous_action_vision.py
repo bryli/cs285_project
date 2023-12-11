@@ -401,7 +401,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
             if (global_step // args.batch_size) % 50 == 0:
                 print("Saving model.")
-                torch.save(agent.state_dict(), f"runs/{run_name}/latest_model.pth")
+                torch.save(actor.state_dict(), f"runs/{run_name}/latest_actor_model.pth")
+                torch.save(qf1.state_dict(), f"runs/{run_name}/latest_qf1_model.pth")
+                torch.save(qf2.state_dict(), f"runs/{run_name}/latest_qf1_model.pth")
+                torch.save(qf1_target.state_dict(), f"runs/{run_name}/latest_qf1_target_model.pth")
+                torch.save(qf2_target.state_dict(), f"runs/{run_name}/latest_qf2_target_model.pth")
+
+
 
     envs.close()
     writer.close()
