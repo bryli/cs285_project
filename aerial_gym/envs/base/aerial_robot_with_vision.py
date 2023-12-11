@@ -326,10 +326,10 @@ class AerialRobotWithVision(BaseTask):
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
+        difficulty = min(((self.counter // 4000 + 1) / 10.0), 1.0)
         if 0 in env_ids:
-            print("\n\n\n RESETTING ENV 0 \n\n\n")
-
-        self.env_asset_manager.randomize_pose(difficulty_factor=min(((self.counter // 100000 + 1) / 10.0), 1.0), heuristic=False)
+            print(f"\n\n\n RESETTING ENV 0 (Difficulty {difficulty}) \n\n\n")
+        self.env_asset_manager.randomize_pose(difficulty_factor=difficulty, heuristic=False)
         # self.env_asset_manager.randomize_pose(difficulty_factor=min(((self.counter // 100000 + 1) / 10.0), 1.0), heuristic=False)
         
         self.env_asset_root_states[env_ids, :, 0:3] = self.env_asset_manager.asset_pose_tensor[env_ids, :, 0:3]
@@ -574,9 +574,9 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     #reset = torch.where(target_dist < 0.2, ones, reset)
     reset = torch.where(collisions > 0, ones, reset)
     reset = torch.where(z > 10, ones, reset)
-    if torch.any(reset):
-        for i in range(len(reset)):
-            if reset[i]:
-                print("X=" + str(root_positions[i][0].item()) + ",Y=" + str(root_positions[i][1].item()) + ",Z=" +  str(root_positions[i][2].item()) + ",Rew=" + str(reward[i].item()) + ",Col=" + str(collisions[i].item()) + ",Prog="  +str(progress_buf[i].item()))
+    # if torch.any(reset):
+    #     for i in range(len(reset)):
+    #         if reset[i]:
+    #             print("X=" + str(root_positions[i][0].item()) + ",Y=" + str(root_positions[i][1].item()) + ",Z=" +  str(root_positions[i][2].item()) + ",Rew=" + str(reward[i].item()) + ",Col=" + str(collisions[i].item()) + ",Prog="  +str(progress_buf[i].item()))
 
     return reward, reset
