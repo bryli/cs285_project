@@ -326,7 +326,8 @@ class AerialRobotWithVision(BaseTask):
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
-        difficulty = 1#min(((self.counter // 4000 + 1) / 10.0), 1.0)
+        # difficulty = 1 # NO CURRICULUM LEARNING
+        difficulty = min(((self.counter // 4000 + 1) / 10.0), 1.0) # CURRICULUM LEARNING
         if 0 in env_ids:
             print(f"\n\n\n RESETTING ENV 0 (Difficulty {difficulty}) \n\n\n")
         self.env_asset_manager.randomize_pose(difficulty_factor=difficulty, heuristic=False)
