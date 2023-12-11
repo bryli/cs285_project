@@ -545,18 +545,18 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     # D *    *   * * 
     #  *  * *
 
-    reward = goal_reward + 50 * up_reward + min_dist #reward close to goal, upright, and big min_dist
-    reward -= 1000 * collisions + 100 * height_penalty + 100 * too_far_penalty + 1 * z_clipped + progress_buf #penalize collisions, height resets, too-far resets, too high position, and too long episodes
+    reward = goal_reward + (goal_reward * up_reward) + min_dist #reward close to goal, upright, and big min_dist
+    reward -= 1000 * collisions + 500 * height_penalty + 500 * too_far_penalty + 1 * z_clipped #+ progress_buf #penalize collisions, height resets, too-far resets, too high position
     
     # print("****Reward Calculations****")
-    # print("pos_reward:      " + str(pos_reward[0]))
+    # # print("pos_reward:      " + str(pos_reward[0]))
     # print("goal_reward:     " + str(goal_reward[0]))
     # print("up_reward:       " + str(up_reward[0]))
     # print("collision:       " + str(int(collisions[0] * 1000)))
     # print("height:          " + str(int(height_penalty[0] * 1000)))
     # print("prog_buf:        " + str(progress_buf[0]))
     # print("min_dist:        " + str(min_dist[0]))
-    # print("total_reward:    " + str(reward))
+    # print("total_reward:    " + str(reward[0]))
 
     # reward = pos_reward + pos_reward * up_reward - np.max(camera_buf)
     # reward = pos_reward + pos_reward * (up_reward + spinnage_reward)

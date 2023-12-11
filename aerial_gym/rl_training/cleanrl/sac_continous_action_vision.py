@@ -399,5 +399,9 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 if args.autotune:
                     writer.add_scalar("losses/alpha_loss", alpha_loss.item(), global_step)
 
+            if (global_step // args.batch_size) % 50 == 0:
+                print("Saving model.")
+                torch.save(agent.state_dict(), f"runs/{run_name}/latest_model.pth")
+
     envs.close()
     writer.close()
