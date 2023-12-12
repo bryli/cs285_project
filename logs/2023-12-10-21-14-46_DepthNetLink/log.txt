@@ -1,0 +1,307 @@
+Start time :  2023-12-10 21:14:48
+---[   NOTE:    ]---
+------------------------------------------------------------------------------- 
+infos :  {'seed': 3, 'datasets_path': './dataset/TrainingSet/', 'train_datasets': ['./dataset/TrainingSet/NJU2K_TRAIN', './dataset/TrainingSet/NLPR_TRAIN'], 'val_datasets': ['./dataset/TrainingSet/NJU2K_TEST'], 'gpu_ids': [0], 'start_epoch': 0, 'epochs': 30, 'bs': 8, 'lr': 0.0001, 'num_workers': 4, 'optimizer': ['Adam', {'weight_decay': 0, 'betas': [0.9, 0.99]}], 'scheduler': ['Constant', {}], 'if_memory': False, 'max_num': 0, 'size': (224, 224), 'train_only_epochs': 0, 'val_interval': 1, 'resume': None, 'model': 'DepthNetLink', 'note': '', 'if_use_tensorboard': True, 'snapshot_path': 'snapshot/2023-12-10-21-14-46_DepthNetLink', 'if_debug': 0, 'if_only_val': 0, 'if_save_checkpoint': False} 
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+Epoch [000]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.521
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.518
+[NJU2K_TEST]-> mae:0.0184 f_max:0.7311
+Metric_Select[MAE]: 0.0184 (0.0184)
+-------------------------------------------------------------------------------
+Epoch [001]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.505
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0114 f_max:0.7314
+Metric_Select[MAE]: 0.0114 (0.0114)
+-------------------------------------------------------------------------------
+Epoch [002]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.504
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0104 f_max:0.7314
+Metric_Select[MAE]: 0.0104 (0.0104)
+-------------------------------------------------------------------------------
+Epoch [003]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.504
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0115 f_max:0.7314
+Metric_Select[MAE]: 0.0115 (0.0104)
+-------------------------------------------------------------------------------
+Epoch [004]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0113 f_max:0.7315
+Metric_Select[MAE]: 0.0113 (0.0104)
+-------------------------------------------------------------------------------
+Epoch [005]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0091 f_max:0.7315
+Metric_Select[MAE]: 0.0091 (0.0091)
+-------------------------------------------------------------------------------
+Epoch [006]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.504
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0077 f_max:0.7315
+Metric_Select[MAE]: 0.0077 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [007]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0077 f_max:0.7315
+Metric_Select[MAE]: 0.0077 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [008]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0087 f_max:0.7315
+Metric_Select[MAE]: 0.0087 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [009]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0080 f_max:0.7315
+Metric_Select[MAE]: 0.0080 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [010]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0111 f_max:0.7315
+Metric_Select[MAE]: 0.0111 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [011]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0086 f_max:0.7315
+Metric_Select[MAE]: 0.0086 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [012]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0080 f_max:0.7315
+Metric_Select[MAE]: 0.0080 (0.0077)
+-------------------------------------------------------------------------------
+Epoch [013]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0071 f_max:0.7315
+Metric_Select[MAE]: 0.0071 (0.0071)
+-------------------------------------------------------------------------------
+Epoch [014]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0081 f_max:0.7315
+Metric_Select[MAE]: 0.0081 (0.0071)
+-------------------------------------------------------------------------------
+Epoch [015]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0082 f_max:0.7315
+Metric_Select[MAE]: 0.0082 (0.0071)
+-------------------------------------------------------------------------------
+Epoch [016]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0087 f_max:0.7315
+Metric_Select[MAE]: 0.0087 (0.0071)
+-------------------------------------------------------------------------------
+Epoch [017]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0067 f_max:0.7315
+Metric_Select[MAE]: 0.0067 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [018]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0083 f_max:0.7315
+Metric_Select[MAE]: 0.0083 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [019]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0101 f_max:0.7315
+Metric_Select[MAE]: 0.0101 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [020]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0072 f_max:0.7315
+Metric_Select[MAE]: 0.0072 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [021]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0085 f_max:0.7315
+Metric_Select[MAE]: 0.0085 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [022]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0074 f_max:0.7315
+Metric_Select[MAE]: 0.0074 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [023]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0069 f_max:0.7315
+Metric_Select[MAE]: 0.0069 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [024]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0073 f_max:0.7315
+Metric_Select[MAE]: 0.0073 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [025]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0076 f_max:0.7315
+Metric_Select[MAE]: 0.0076 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [026]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0068 f_max:0.7314
+Metric_Select[MAE]: 0.0068 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [027]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0069 f_max:0.7315
+Metric_Select[MAE]: 0.0069 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [028]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.503
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0069 f_max:0.7315
+Metric_Select[MAE]: 0.0069 (0.0067)
+-------------------------------------------------------------------------------
+Epoch [029]=>    |-lr:['0.0001000']-|  
+
+Training :
+Loss: 0.502
+Validation :
+Validation [NJU2K_TEST]
+Loss: 0.516
+[NJU2K_TEST]-> mae:0.0081 f_max:0.7315
+Metric_Select[MAE]: 0.0081 (0.0067)
+-------------------------------------------------------------------------------
+End time :  2023-12-10 21:58:16
