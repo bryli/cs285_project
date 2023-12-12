@@ -29,7 +29,7 @@ import time
 from aerial_gym.autoencoder.encoder import Autoencoder
 from gymnasium import spaces
 
-class AerialRobotWithVision(BaseTask):
+class AerialRobotWithVisionTest(BaseTask):
 
     def __init__(self, cfg: AerialRobotWithVisionCfg, sim_params, physics_engine, sim_device, headless):
         self.cfg = cfg
@@ -326,10 +326,9 @@ class AerialRobotWithVision(BaseTask):
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
-        # difficulty = 1 # NO CURRICULUM LEARNING
-        difficulty = min(((self.counter // 8000 + 1) / 10.0), 1.0) # CURRICULUM LEARNING
+        difficulty = 1 # NO CURRICULUM LEARNING
+        # difficulty = min(((self.counter // 8000 + 1) / 10.0), 1.0) # CURRICULUM LEARNING
         if 0 in env_ids:
-
             print(f"\n\n\n RESETTING ENV 0 (Difficulty {difficulty}) \n\n\n")
         self.env_asset_manager.randomize_pose(difficulty_factor=difficulty, heuristic=False)
         # self.env_asset_manager.randomize_pose(heuristic=False)
@@ -550,7 +549,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     #  *  * *
 
     reward = goal_reward + (goal_reward * up_reward) + min_dist #reward close to goal, upright, and big min_dist
-    reward -= 1000 * collisions + 500 * height_penalty + 500 * too_far_penalty + 1 * z_clipped #+ progress_buf #penalize collisions, height resets, too-far resets, too high position
+    reward -= 100000 * collisions + 100000 * height_penalty + 100000 * too_far_penalty + 1 * z_clipped #+ progress_buf #penalize collisions, height resets, too-far resets, too high position
     
     # print("****Reward Calculations****")
     # # print("pos_reward:      " + str(pos_reward[0]))
