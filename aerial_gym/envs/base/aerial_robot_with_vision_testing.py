@@ -326,7 +326,7 @@ class AerialRobotWithVisionTest(BaseTask):
 
     def reset_idx(self, env_ids):
         num_resets = len(env_ids)
-        difficulty = 1 # NO CURRICULUM LEARNING
+        difficulty = 0.1 # NO CURRICULUM LEARNING
         # difficulty = min(((self.counter // 8000 + 1) / 10.0), 1.0) # CURRICULUM LEARNING
         if 0 in env_ids:
             print(f"\n\n\n RESETTING ENV 0 (Difficulty {difficulty}) \n\n\n")
@@ -505,7 +505,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
 
     #pos_reward = 2.0 / (1.0 + target_dist * target_dist) #inverse proportional
 
-    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000 * (target_dist < 0.05) #- 100 * (target_dist < 0.05)
+    goal_reward = 100 / (0.1 + target_dist * target_dist) + 1000000 * (target_dist < 0.05) #- 100 * (target_dist < 0.05)
 
     #drone_reward = -torch.where(target_distance <= 0.05, torch.tensor(100, device=self.device), torch.tensor(0, device=self.device))
 
@@ -576,6 +576,7 @@ def compute_quadcopter_reward(root_positions, root_quats, root_linvels, root_ang
     #reset = torch.where(target_dist < 0.2, ones, reset)
     reset = torch.where(collisions > 0, ones, reset)
     reset = torch.where(z > 10, ones, reset)
+    reset = torch.where(target_dist < 0.05, ones, reset)
     # if torch.any(reset):
     #     for i in range(len(reset)):
     #         if reset[i]:
