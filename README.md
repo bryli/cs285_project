@@ -1,4 +1,16 @@
-# Aerial Gym Simulator
+# CS 285 Project: UAV Navigation and Obstacle Avoidance Using Heuristic-Based Curriculum Learning with Vision
+
+In this paper, we propose a curriculum learning framework in combination with reinforcement learning models to improve performance and training efficiency for drone flight. Our research targets safe and effective flight in outdoors environments, making use of a quadcopter's agility but requiring precise control to avoid obstacles. We also rely on only the flight controller for computational power in combination with a depth image and inertial measurement unit (IMU) data, making real-time flight a challenge when considering obstacle avoidance. In particular, we also do not use GPS localization, making real-time kinematic flight (RTK) infeasible.
+
+These limitations mean that many other approaches will perform below standards, such as Simultaneous Localization and Mapping (SLAM). Furthermore, imitation learning, although explored, has issues with generalization and adaptability in complex environments. Instead, we propose a curriculum learning methodology, gradually exposing the model to tasks of escalating complexity. This approach aims to cultivate a diverse skill set, enhance generalization, and mitigate the risk of overfitting. Our curriculum is augmented by heuristic-based difficulty estimation, providing a guided trajectory through the learning process. Some heuristics we use to define difficulty include the number of obstacles in the environment and their density, as well as the ratio between the optimal path distance found by the rapidly exploring random tree (RRT) method and the Euclidean distance from the start and destination points.
+
+The chosen simulation environment, Isaac Gym, offers a dynamic and realistic setting, closely mirroring real-world challenges. Our research milestones include some successful initial simulations, employing Isaac Gym and Aerial Gym, and the training and evaluation of several fundamental quadcopter control policies utilizing PPO (proximal policy optimization) and SAC (soft actor-critic) with and without our curriculum learning framework.
+
+We found that integrating our heuristic-based curriculum learning strategy with the off-the-shelf PPO algorithm provided noticeable improvement in our returns, showing that this could be a promising research direction for future work.
+
+As our research progresses, we pivot towards outdoor long-distance navigation, addressing a notable gap in existing studies. The core of our methodology lies in the synergistic application of reinforcement learning and curriculum learning, offering a structured approach to skill acquisition for agile and adaptive unmanned aerial vehicles.
+
+# Aerial Gym
 
 This repository provides the environments used to train quadrotor platforms to learn to fly and navigate cluttered environments using learning-based methods. The environments are built upon the underlying NVIDIA Isaac Gym simulator. We provide simplified quadrotor models with high-level geometric controllers that operate on the GPU to provide parallelization for the simultaneous control of thousands of multirotor vehicles.
 
