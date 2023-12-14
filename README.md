@@ -18,8 +18,9 @@ To run our experiments, please run the following commands within the cleanrl fol
 
 ```python sac_continuous_action_vision.py```
 
-```python _continuous_action_vision.py```
+```python ddpg_continuous_action_vision.py```
 
+To change the number of parallel environments, use the --num_envs option. There are also lots of different hyperparameters that you can change and tune, please refer to the actual code files for more information. 
 
 In order to enable or disable curriculum learning, go to ```aerial_robot_with_vision.py``` and within the ```reset_idx()``` function, comment and uncomment the relevant lines of code.
 
