@@ -428,7 +428,10 @@ class AerialRobotWithVisionTest(BaseTask):
 
         self.latent_camera_features = self.autoencoder.forward(self.full_camera_array_list)
 
-        self.obs_buf[..., 13:] = torch.flatten(self.latent_camera_features, start_dim=1)
+        if self.num_envs > 1:
+            self.obs_buf[..., 13:] = torch.flatten(self.latent_camera_features, start_dim=1)
+        else:
+            self.obs_buf[..., 13:] = torch.flatten(self.latent_camera_features)
         #print(self.obs_buf.shape)
         self.min_dist = self.compute_min_distance()
         return self.obs_buf
@@ -469,7 +472,7 @@ class AerialRobotWithVisionTest(BaseTask):
 #####################################################################
 
 @torch.jit.script
-def quat_rotate(q, v):
+def quat_rotate(q, v):  
     shape = q.shape
     q_w = q[:, -1]
     q_vec = q[:, :3]

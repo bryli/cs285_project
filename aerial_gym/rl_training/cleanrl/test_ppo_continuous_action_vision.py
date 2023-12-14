@@ -50,7 +50,7 @@ def get_args():
     custom_parameters = [
         {"name": "--task", "type": str, "default": "quad_with_vision_testing", "help": "Resume training or start testing from a checkpoint. Overrides config file if provided."},
         {"name": "--experiment_name", "type": str, "default": os.path.basename(__file__).rstrip(".py"), "help": "Name of the experiment to run or load. Overrides config file if provided."},
-        {"name": "--checkpoint", "type": str, "default": "runs/ppo_normal_1702255925/latest_model.pth", "help": "Saved model checkpoint number."},        
+        {"name": "--checkpoint", "type": str, "default": "runs/ppo_curr_12m_steps/latest_model.pth", "help": "Saved model checkpoint number."},        
         {"name": "--headless", "action": "store_true", "default": False, "help": "Force display off at all times"},
         {"name": "--horovod", "action": "store_true", "default": False, "help": "Use horovod for multi-gpu training"},
         {"name": "--rl_device", "type": str, "default": "cuda:0", "help": 'Device used by the RL algorithm, (cpu, gpu, cuda:0, cuda:1 etc..)'},
