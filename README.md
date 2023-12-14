@@ -10,6 +10,16 @@ We found that integrating our heuristic-based curriculum learning strategy with 
 
 As our research progresses, we pivot towards outdoor long-distance navigation, addressing a notable gap in existing studies. The core of our methodology lies in the synergistic application of reinforcement learning and curriculum learning, offering a structured approach to skill acquisition for agile and adaptive unmanned aerial vehicles.
 
+# Experiments
+
+To run our experiments, please run the following commands within the cleanrl folder:
+
+```python ppo_continuous_action_vision.py```
+```python sac_continuous_action_vision.py```
+```python _continuous_action_vision.py```
+
+In order to enable or disable curriculum learning, go to ```aerial_robot_with_vision.py``` and within the ```reset_idx()``` function, comment and uncomment the relevant lines of code.
+
 # Aerial Gym
 
 This repository provides the environments used to train quadrotor platforms to learn to fly and navigate cluttered environments using learning-based methods. The environments are built upon the underlying NVIDIA Isaac Gym simulator. We provide simplified quadrotor models with high-level geometric controllers that operate on the GPU to provide parallelization for the simultaneous control of thousands of multirotor vehicles.
