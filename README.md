@@ -14,9 +14,9 @@ As our research progresses, we pivot towards outdoor long-distance navigation, a
 
 To run our experiments, please run the following commands within the cleanrl folder:
 
-```python ppo_continuous_action_vision.py```
-```python sac_continuous_action_vision.py```
-```python _continuous_action_vision.py```
+```python ppo_continuous_action_vision.py``` \n
+```python sac_continuous_action_vision.py``` \n
+```python _continuous_action_vision.py``` \n
 
 In order to enable or disable curriculum learning, go to ```aerial_robot_with_vision.py``` and within the ```reset_idx()``` function, comment and uncomment the relevant lines of code.
 
