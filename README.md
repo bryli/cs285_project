@@ -12,7 +12,7 @@ As our research progresses, we pivot towards outdoor long-distance navigation, a
 
 # Experiments
 
-To run our experiments, please run the following commands within the cleanrl folder:
+To run our experiments, please run the following commands within the cleanrl folder (```aerial_gym/rl_training/cleanrl```):
 
 ```python ppo_continuous_action_vision.py```
 
@@ -20,9 +20,13 @@ To run our experiments, please run the following commands within the cleanrl fol
 
 ```python ddpg_continuous_action_vision.py```
 
-To change the number of parallel environments, use the --num_envs option. There are also lots of different hyperparameters that you can change and tune, please refer to the actual code files for more information. 
+To change the number of parallel environments, use the `--num_envs` option. There are also lots of different hyperparameters that you can change and tune, please refer to the actual code files for more information. 
 
-In order to enable or disable curriculum learning, go to ```aerial_robot_with_vision.py``` and within the ```reset_idx()``` function, comment and uncomment the relevant lines of code.
+In order to enable or disable curriculum learning, go to ```aerial_gym/envs/base/aerial_robot_with_vision.py``` and within the ```reset_idx()``` function, comment and uncomment the relevant lines of code.
+
+# Evaluation
+
+To evaluate a PPO model, go to ```aerial_gym/envs/base/aerial_robot_with_vision_testing.py``` and set the difficulty to a value between 0.1 and 1.0. Then, inside the cleanrl folder (```aerial_gym/rl_training/cleanrl```), run ```test_ppo_continuous_action_vision.py``` with `--checkpoint` followed by the path to the `.pth` file. Change the number of parallel environments with the `--num_envs` option.
 
 # Aerial Gym
 
